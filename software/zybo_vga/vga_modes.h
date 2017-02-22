@@ -38,80 +38,80 @@ typedef struct {
 } VideoMode;
 
 static const VideoMode VMODE_640x480 = {
-	.label = "640x480@60Hz",
-	.width = 640,
-	.height = 480,
-	.hps = 656,
-	.hpe = 752,
-	.hmax = 799,
-	.hpol = 0,
-	.vps = 490,
-	.vpe = 492,
-	.vmax = 524,
-	.vpol = 0,
-	.freq = 25.0
+	/* label */ "640x480@60Hz",
+	/* width */ 640,
+	/* height */ 480,
+	/* hps */ 656,
+	/* hpe */ 752,
+	/* hmax */ 799,
+	/* hpol */ 0,
+	/* vps */ 490,
+	/* vpe */ 492,
+	/* vmax */ 524,
+	/* vpol */ 0,
+	/* freq */ 25.0
 };
 
 
 static const VideoMode VMODE_800x600 = {
-	.label = "800x600@60Hz",
-	.width = 800,
-	.height = 600,
-	.hps = 840,
-	.hpe = 968,
-	.hmax = 1055,
-	.hpol = 1,
-	.vps = 601,
-	.vpe = 605,
-	.vmax = 627,
-	.vpol = 1,
-	.freq = 40.0
+	/* label*/ "800x600@60Hz",
+	/* width*/ 800,
+	/* height*/ 600,
+	/* hps */ 840,
+	/* hpe */ 968,
+	/* hmax */ 1055,
+	/* hpol */ 1,
+	/* vps */ 601,
+	/* vpe */ 605,
+	/* vmax */ 627,
+	/* vpol */ 1,
+	/* freq */ 40.0
 };
 
 static const VideoMode VMODE_1280x1024 = {
-	.label = "1280x1024@60Hz",
-	.width = 1280,
-	.height = 1024,
-	.hps = 1328,
-	.hpe = 1440,
-	.hmax = 1687,
-	.hpol = 1,
-	.vps = 1025,
-	.vpe = 1028,
-	.vmax = 1065,
-	.vpol = 1,
-	.freq = 108.0
+	/* label */ "1280x1024@60Hz",
+	/* width */ 1280,
+	/* height */ 1024,
+	/* hps */ 1328,
+	/* hpe */ 1440,
+	/* hmax */ 1687,
+	/* hpol */ 1,
+	/* vps */ 1025,
+	/* vpe */ 1028,
+	/* vmax */ 1065,
+	/* vpol */ 1,
+	/* freq */ 108.0
 };
 
 static const VideoMode VMODE_1280x720 = {
-	.label = "1280x720@60Hz",
-	.width = 1280,
-	.height = 720,
-	.hps = 1390,
-	.hpe = 1430,
-	.hmax = 1649,
-	.hpol = 1,
-	.vps = 725,
-	.vpe = 730,
-	.vmax = 749,
-	.vpol = 1,
-	.freq = 74.25, //74.2424 is close enough
+	/* label */ "1280x720@60Hz",
+	/* width */ 1280,
+	/* height */ 720,
+	/* hps */ 1390,
+	/* hpe */ 1430,
+	/* hmax */ 1649,
+	/* hpol */ 1,
+	/* vps */ 725,
+	/* vpe */ 730,
+	/* vmax */ 749,
+	/* vpol */ 1,
+	/* freq */ 74.25, //74.2424 is close enough
 };
 
 // Taken from http://tinyvga.com/vga-timing/1680x1050@60Hz
 static const VideoMode VMODE_1680x1050 = {
-	.label = "1680x1050@60Hz",
-	.width = 1680,
-	.height = 1050,
-	.hps = 1680+104,
-	.hpe = 1680+104+184,
-	.hmax = 2256,
-	.hpol = 0,
-	.vps = 1050+1,
-	.vpe = 1050+1+3,
-	.vmax = 1087,
-	.vpol = 1,
-	.freq = 147.14
+	/* label */ "1680x1050@60Hz",
+	/* width */ 1680,
+	/* height */ 1050,
+	/* hps */ 1680+104,
+	/* hpe */ 1680+104+184,
+	/* hmax */ 2256,
+	/* hpol */ 0,
+	/* vps */ 1050+1,
+	/* vpe */ 1050+1+3,
+	/* vmax */ 1087,
+	/* vpol */ 1,
+	/* freq */ 147.14
 };
 
 #endif /* VGA_MODES_H_ */
