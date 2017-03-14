@@ -1,49 +1,50 @@
 /************************************************************************/
-/*																		*/
-/*	display_ctrl.c	--	Digilent Display Controller Driver				*/
-/*																		*/
+/*                                                                      */
+/*  display_ctrl.c  --  Digilent Display Controller Driver              */
+/*                                                                      */
 /************************************************************************/
-/*	Author: Sam Bobrowicz												*/
-/*	Copyright 2014, Digilent Inc.										*/
+/*  Author: Sam Bobrowicz                                               */
+/*  Copyright 2014, Digilent Inc.                                       */
 /************************************************************************/
-/*  Module Description: 												*/
-/*																		*/
-/*		This module provides an easy to use API for controlling a    	*/
-/*		Display attached to a Digilent system board via VGA or HDMI. 	*/
-/*		run-time resolution setting and seamless framebuffer-swapping 	*/
-/*		for tear-free animation. 										*/
-/*																		*/
-/*		To use this driver, you must have a Xilinx Video Timing 		*/
-/* 		Controller core (vtc), Xilinx axi_vdma core, a Digilent 		*/
-/*		axi_dynclk core, a Xilinx AXI Stream to Video core, and either  */
-/*		a Digilent RGB2VGA or RGB2DVI core all present in your design.  */
-/*		See the Video in or Display out reference projects for your     */
-/*		system board to see how they need to be connected. Digilent     */
-/*		reference projects and IP cores can be found at 				*/
-/*		www.github.com/Digilent.			 							*/
-/*																		*/
-/*		The following steps should be followed to use this driver:		*/
-/*		1) Create a DisplayCtrl object and pass a pointer to it to 		*/
-/*		   DisplayInitialize.											*/
-/*		2) Call DisplaySetMode to set the desired mode					*/
-/*		3) Call DisplayStart to begin outputting data to the display	*/
-/*		4) To create a seamless animation, draw the next image to a		*/
-/*		   framebuffer currently not being displayed. Then call 		*/
-/*		   DisplayChangeFrame to begin displaying that frame.			*/
-/*		   Repeat as needed, only ever modifying inactive frames.		*/
-/*		5) To change the resolution, call DisplaySetMode, followed by	*/
-/*		   DisplayStart again.											*/
-/*																		*/
-/*																		*/
+/*  Module Description:                                                 */
+/*                                                                      */
+/*      This module provides an easy to use API for controlling a       */
+/*      Display attached to a Digilent system board via VGA or HDMI.    */
+/*      run-time resolution setting and seamless framebuffer-swapping   */
+/*      for tear-free animation.                                        */
+/*                                                                      */
+/*      To use this driver, you must have a Xilinx Video Timing         */
+/*      Controller core (vtc), Xilinx axi_vdma core, a Digilent         */
+/*      axi_dynclk core, a Xilinx AXI Stream to Video core, and either  */
+/*      a Digilent RGB2VGA or RGB2DVI core all present in your design.  */
+/*      See the Video in or Display out reference projects for your     */
+/*      system board to see how they need to be connected. Digilent     */
+/*      reference projects and IP cores can be found at                 */
+/*      www.github.com/Digilent.                                        */
+/*                                                                      */
+/*      The following steps should be followed to use this driver:      */
+/*      1) Create a DisplayCtrl object and pass a pointer to it to      */
+/*         DisplayInitialize.                                           */
+/*      2) Call DisplaySetMode to set the desired mode                  */
+/*      3) Call DisplayStart to begin outputting data to the display    */
+/*      4) To create a seamless animation, draw the next image to a     */
+/*         framebuffer currently not being displayed. Then call         */
+/*         DisplayChangeFrame to begin displaying that frame.           */
+/*         Repeat as needed, only ever modifying inactive frames.       */
+/*      5) To change the resolution, call DisplaySetMode, followed by   */
+/*         DisplayStart again.                                          */
+/*                                                                      */
+/*                                                                      */
 /************************************************************************/
-/*  Revision History:													*/
-/* 																		*/
-/*		2/20/2014(SamB): Created										*/
-/*		11/25/2015(SamB): Changed from axi_dispctrl to Xilinx cores		*/
-/*						  Separated Clock functions into dynclk library */
-/*		16/02/2017(RussellJ): Moved VDMA initialisation into		*/
-/*								   DisplayInitialize() function			*/
-/*																		*/
+/*  Revision History:                                                   */
+/*                                                                      */
+/*      2/20/2014(SamB): Created                                        */
+/*      11/25/2015(SamB): Changed from axi_dispctrl to Xilinx cores     */
+/*                        Separated Clock functions into dynclk library */
+/*      16/02/2017(RussellJ): Moved VDMA initialisation into            */
+/*                            DisplayInitialize() function              */
+/*      14/03/2017(RussellJ): Added DisplayWaitForSync() function,      */
+/*                                                                      */
 /************************************************************************/
 /*
  * TODO: It would be nice to remove the need for users above this to access
@@ -482,7 +483,44 @@ int DisplayChangeFrame(DisplayCtrl *dispPtr, u32 frameIndex)
 
 	return XST_SUCCESS;
 }
+/* ------------------------------------------------------------ */
+
+/***	DisplayWaitForSync(DisplayCtrl *dispPtr)
+**
+**	Parameters:
+**		dispPtr - Pointer to the initialized DisplayCtrl struct
+**
+**	Return Value: int
+**		XST_SUCCESS if successful, XST_FAILURE otherwise
+**
+**	Errors:
+**
+**	Description:
+**		Blocks until the requested current frame is being shown.
+**		Allows for frame syncing after DisplayChangeFrame().
+**
+*/
+
+int DisplayWaitForSync(DisplayCtrl *dispPtr)
+{
+	XAxiVdma *vdma = &dispPtr->vdma;
+	u32 target_frame = dispPtr->curFrame;
+	u32 current_frame;
+
+	if (dispPtr->state != DISPLAY_RUNNING) {
+		return XST_FAILURE;
+	}
+
+	for (;;) {
+		current_frame = XAxiVdma_CurrFrameStore(vdma, XAXIVDMA_READ);
+		if (current_frame == target_frame) {
+			return XST_SUCCESS;
+		}
+		else if (current_frame >= DISPLAY_NUM_FRAMES) {
+			return XST_FAILURE;
+		}
+	}
+}
 
 
 /************************************************************************/
-
