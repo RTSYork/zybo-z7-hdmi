@@ -44,6 +44,7 @@
 /*      16/02/2017(RussellJ): Moved VDMA initialisation into            */
 /*                            DisplayInitialize() function              */
 /*      14/03/2017(RussellJ): Added DisplayWaitForSync() function,      */
+/*                            changed framePtr to be void*              */
 /*                                                                      */
 /************************************************************************/
 /*
@@ -246,7 +247,7 @@ int DisplayStart(DisplayCtrl *dispPtr)
 	 * current mode
 	 */
 	dispPtr->vdmaConfig.VertSizeInput = dispPtr->vMode.height;
-	dispPtr->vdmaConfig.HoriSizeInput = (dispPtr->vMode.width) * 3;
+	dispPtr->vdmaConfig.HoriSizeInput = (dispPtr->vMode.width) * 4;
 	dispPtr->vdmaConfig.FixedFrameStoreAddr = dispPtr->curFrame;
 	/*
 	 *Also reset the stride and address values, in case the user manually changed them
@@ -314,7 +315,7 @@ int DisplayStart(DisplayCtrl *dispPtr)
 **		Initializes the driver struct for use.
 **
 */
-int DisplayInitialize(DisplayCtrl *dispPtr, u16 vdmaId, u16 vtcId, u32 dynClkAddr, u8 *framePtr[DISPLAY_NUM_FRAMES], u32 stride)
+int DisplayInitialize(DisplayCtrl *dispPtr, u16 vdmaId, u16 vtcId, u32 dynClkAddr, void *framePtr[DISPLAY_NUM_FRAMES], u32 stride)
 {
 	int Status;
 	int i;

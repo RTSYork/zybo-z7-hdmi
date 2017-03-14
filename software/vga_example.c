@@ -9,13 +9,13 @@
 #include "xparameters.h"
 #include "zybo_vga/display_ctrl.h"
 
-// Frame size (based on 1680x1050 resolution, 3 bytes per pixel)
-#define MAX_FRAME (1680*1050*3)
-#define FRAME_STRIDE (1680*3)
+// Frame size (based on 1440x900 resolution, 32 bits per pixel)
+#define MAX_FRAME (1440*900)
+#define FRAME_STRIDE (1440*4)
 
 DisplayCtrl dispCtrl; // Display driver struct
-u8 frameBuf[DISPLAY_NUM_FRAMES][MAX_FRAME]; // Frame buffers for video data
-u8 *pFrames[DISPLAY_NUM_FRAMES]; // Array of pointers to the frame buffers
+u32 frameBuf[DISPLAY_NUM_FRAMES][MAX_FRAME]; // Frame buffers for video data
+void *pFrames[DISPLAY_NUM_FRAMES]; // Array of pointers to the frame buffers
 
 int main(void) {
 	// Initialise an array of pointers to the 2 frame buffers
@@ -30,7 +30,7 @@ int main(void) {
 	DisplayChangeFrame(&dispCtrl, 0);
 
 	// Set the display resolution
-	DisplaySetMode(&dispCtrl, &VMODE_1680x1050);
+	DisplaySetMode(&dispCtrl, &VMODE_1440x900);
 
 	// Enable video output
 	DisplayStart(&dispCtrl);
@@ -41,22 +41,25 @@ int main(void) {
 
 	// Get parameters from display controller struct
 	int x, y;
-	u32 stride = dispCtrl.stride;
+	u32 stride = dispCtrl.stride / 4;
 	u32 width = dispCtrl.vMode.width;
 	u32 height = dispCtrl.vMode.height;
-	u8 *frame = dispCtrl.framePtr[dispCtrl.curFrame];
+	u32 *frame = dispCtrl.framePtr[dispCtrl.curFrame];
+	u32 red, green, blue;
 
 	// Fill the screen with a nice gradient
 	for (y = 0; y < height; y++) {
-		for (x = 0; x < width*3; x+=3) {
-			frame[y*stride + x + 0] = (x*0xFF) / (width*3);          // Green
-			frame[y*stride + x + 1] = 0xFF - ((x*0xFF) / (width*3)); // Blue
-			frame[y*stride + x + 2] = (y*0xFF) / height;             // Red
+		for (x = 0; x < width; x++) {
+			green = (x*0xFF) / width;
+			blue = 0xFF - ((x*0xFF) / width);
+			red = (y*0xFF) / height;
+			frame[y*stride + x] = (red << BIT_DISPLAY_RED) | (blue << BIT_DISPLAY_BLUE) | (green << BIT_DISPLAY_GREEN);
 		}
 	}
 
-	// Flush the cache lines for our frame buffer, so the Video DMA core can pick up our changes
-	Xil_DCacheFlushRange((INTPTR)frame, MAX_FRAME);
+	// Flush the cache, so the Video DMA core can pick up our frame buffer changes.
+	// Flushing the whole cache (rather than a range) makes sense as our buffer is so big
+	Xil_DCacheFlush();
 
 	return 0;
 }

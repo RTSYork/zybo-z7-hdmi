@@ -44,6 +44,7 @@
 /*      16/02/2017(RussellJ): Moved VDMA initialisation into            */
 /*                            DisplayInitialize() function              */
 /*      14/03/2017(RussellJ): Added DisplayWaitForSync() function,      */
+/*                            changed framePtr to be void*              */
 /*                                                                      */
 /************************************************************************/
 
@@ -69,7 +70,7 @@
 #define BIT_DISPLAY_GREEN 0
 
 /*
- * This driver currently supports 3 frames.
+ * This driver currently supports 2 frames.
  */
 #define DISPLAY_NUM_FRAMES 2
 
@@ -88,7 +89,7 @@ typedef struct {
 		XAxiVdma_DmaSetup vdmaConfig; /*VDMA channel configuration*/
 		XVtc vtc; /*VTC driver struct*/
 		VideoMode vMode; /*Current Video mode*/
-		u8 *framePtr[DISPLAY_NUM_FRAMES]; /* Array of pointers to the framebuffers */
+		void *framePtr[DISPLAY_NUM_FRAMES]; /* Array of pointers to the framebuffers */
 		u32 stride; /* The line stride of the framebuffers, in bytes */
 		double pxlFreq; /* Frequency of clock currently being generated */
 		u32 curFrame; /* Current frame being displayed */
@@ -101,7 +102,7 @@ typedef struct {
 
 int DisplayStop(DisplayCtrl *dispPtr);
 int DisplayStart(DisplayCtrl *dispPtr);
-int DisplayInitialize(DisplayCtrl *dispPtr, u16 vdmaId, u16 vtcId, u32 dynClkAddr, u8 *framePtr[DISPLAY_NUM_FRAMES], u32 stride);
+int DisplayInitialize(DisplayCtrl *dispPtr, u16 vdmaId, u16 vtcId, u32 dynClkAddr, void *framePtr[DISPLAY_NUM_FRAMES], u32 stride);
 int DisplaySetMode(DisplayCtrl *dispPtr, const VideoMode *newMode);
 int DisplayChangeFrame(DisplayCtrl *dispPtr, u32 frameIndex);
 int DisplayWaitForSync(DisplayCtrl *dispPtr);
