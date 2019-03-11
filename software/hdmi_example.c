@@ -1,13 +1,13 @@
 /**
- * Example of using the Digilent display drivers for Zybo VGA output
- * Russell Joyce, 16/02/2017
+ * Example of using the Digilent display drivers for Zybo Z7 HDMI output
+ * Russell Joyce, 11/03/2019
  */
 
 #include <stdio.h>
 #include "xil_types.h"
 #include "xil_cache.h"
 #include "xparameters.h"
-#include "zybo_vga/display_ctrl.h"
+#include "zybo_z7_hdmi/display_ctrl.h"
 
 // Frame size (based on 1440x900 resolution, 32 bits per pixel)
 #define MAX_FRAME (1440*900)
@@ -24,7 +24,7 @@ int main(void) {
 		pFrames[i] = frameBuf[i];
 
 	// Initialise the display controller
-	DisplayInitialize(&dispCtrl, XPAR_AXIVDMA_0_DEVICE_ID, XPAR_VTC_0_DEVICE_ID, XPAR_VGA_AXI_DYNCLK_0_BASEADDR, pFrames, FRAME_STRIDE);
+	DisplayInitialize(&dispCtrl, XPAR_AXIVDMA_0_DEVICE_ID, XPAR_VTC_0_DEVICE_ID, XPAR_HDMI_AXI_DYNCLK_0_BASEADDR, pFrames, FRAME_STRIDE);
 
 	// Use first frame buffer (of two)
 	DisplayChangeFrame(&dispCtrl, 0);
@@ -35,9 +35,11 @@ int main(void) {
 	// Enable video output
 	DisplayStart(&dispCtrl);
 
-	printf("VGA output enabled\n\r");
+	printf("\n\r");
+	printf("HDMI output enabled\n\r");
 	printf("Current Resolution: %s\n\r", dispCtrl.vMode.label);
-	printf("Pixel Clock Freq. (MHz): %.3f\n\r", dispCtrl.pxlFreq);
+	printf("Pixel Clock Frequency: %.3fMHz\n\r", dispCtrl.pxlFreq);
+	printf("Drawing gradient pattern to screen...\n\r");
 
 	// Get parameters from display controller struct
 	int x, y;
@@ -47,7 +49,7 @@ int main(void) {
 	u32 *frame = dispCtrl.framePtr[dispCtrl.curFrame];
 	u32 red, green, blue;
 
-	// Fill the screen with a nice gradient
+	// Fill the screen with a nice gradient pattern
 	for (y = 0; y < height; y++) {
 		for (x = 0; x < width; x++) {
 			green = (x*0xFF) / width;
@@ -58,8 +60,10 @@ int main(void) {
 	}
 
 	// Flush the cache, so the Video DMA core can pick up our frame buffer changes.
-	// Flushing the whole cache (rather than a range) makes sense as our buffer is so big
+	// Flushing the entire cache (rather than a subset of cache lines) makes sense as our buffer is so big
 	Xil_DCacheFlush();
+
+	printf("Done.\n\r");
 
 	return 0;
 }

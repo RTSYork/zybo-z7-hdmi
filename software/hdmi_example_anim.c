@@ -1,13 +1,13 @@
 /**
- * Example of using the Digilent display drivers for Zybo VGA output, with animation
- * Russell Joyce, 14/03/2017
+ * Example of using the Digilent display drivers for Zybo Z7 HDMI output, with animation
+ * Russell Joyce, 11/03/2019
  */
 
 #include <stdio.h>
 #include "xil_types.h"
 #include "xil_cache.h"
 #include "xparameters.h"
-#include "zybo_vga/display_ctrl.h"
+#include "zybo_z7_hdmi/display_ctrl.h"
 
 // Frame size (based on 1440x900 resolution, 32 bits per pixel)
 #define MAX_FRAME (1440*900)
@@ -24,7 +24,7 @@ int main(void) {
 		pFrames[i] = frameBuf[i];
 
 	// Initialise the display controller
-	DisplayInitialize(&dispCtrl, XPAR_AXIVDMA_0_DEVICE_ID, XPAR_VTC_0_DEVICE_ID, XPAR_VGA_AXI_DYNCLK_0_BASEADDR, pFrames, FRAME_STRIDE);
+	DisplayInitialize(&dispCtrl, XPAR_AXIVDMA_0_DEVICE_ID, XPAR_VTC_0_DEVICE_ID, XPAR_HDMI_AXI_DYNCLK_0_BASEADDR, pFrames, FRAME_STRIDE);
 
 	// Start with the first frame buffer (of two)
 	DisplayChangeFrame(&dispCtrl, 0);
@@ -34,6 +34,12 @@ int main(void) {
 
 	// Enable video output
 	DisplayStart(&dispCtrl);
+
+	printf("\n\r");
+	printf("HDMI output enabled\n\r");
+	printf("Current Resolution: %s\n\r", dispCtrl.vMode.label);
+	printf("Pixel Clock Frequency: %.3fMHz\n\r", dispCtrl.pxlFreq);
+	printf("Starting animation loop...\n\r");
 
 	// Get parameters from display controller struct
 	int x, y;
@@ -49,11 +55,11 @@ int main(void) {
 	u32 buff = dispCtrl.curFrame;
 
 	while (1) {
-			// Switch the frame we're modifying to be back buffer (1 to 0, or 0 to 1)
+			// Switch the frame we're modifying to be the back buffer (1 to 0, or 0 to 1)
 			buff = !buff;
 			frame = dispCtrl.framePtr[buff];
 
-			// Clear the frame to white
+			// Clear the entire frame to white (inefficient, but it works)
 			memset(frame, 0xFF, MAX_FRAME*4);
 
 			// Adjust the position of the square
@@ -87,13 +93,13 @@ int main(void) {
 				}
 			}
 
-			// Flush everything out to DDR
+			// Flush everything out to DDR from the cache
 			Xil_DCacheFlush();
 
-			// Switch active frame to the back buffer
+			// Switch active frame to the back buffer (will take place during next vertical blanking period)
 			DisplayChangeFrame(&dispCtrl, buff);
 
-			// Wait for the frame to switch (after active frame is drawn) before continuing
+			// Wait for the frame to switch before continuing (so after current frame has been drawn)
 			DisplayWaitForSync(&dispCtrl);
 	}
 

@@ -1,12 +1,12 @@
 -------------------------------------------------------------------------------
 --
--- File: rgb2vga.vhd
+-- File: SyncAsyncReset.vhd
 -- Author: Elod Gyorgy
--- Original Project: Genesys 2 demo project
--- Date: 20 March 2015
+-- Original Project: HDMI input on 7-series Xilinx FPGA
+-- Date: 20 October 2014
 --
 -------------------------------------------------------------------------------
--- (c) 2015 Copyright Digilent Incorporated
+-- (c) 2014 Copyright Digilent Incorporated
 -- All Rights Reserved
 -- 
 -- This program is free software; distributed under the terms of BSD 3-clause 
@@ -38,8 +38,13 @@
 -------------------------------------------------------------------------------
 --
 -- Purpose:
--- To provide a properly blanked vga signal from an rgb interface
---  
+-- This module is a reset-bridge. It takes a reset signal asynchronous to the 
+-- target clock domain (OutClk) and provides a safe asynchronous or synchronous
+-- reset for the OutClk domain (oRst). The signal oRst is asserted immediately 
+-- as aRst arrives, but is de-asserted synchronously with the OutClk rising
+-- edge. This means it can be used to safely reset any FF in the OutClk domain,
+-- respecting recovery time specs for FFs.
+-- 
 -------------------------------------------------------------------------------
 
 
@@ -55,51 +60,31 @@ use IEEE.STD_LOGIC_1164.ALL;
 --library UNISIM;
 --use UNISIM.VComponents.all;
 
-entity rgb2vga is
+entity ResetBridge is
    Generic (
-      VID_IN_DATA_WIDTH : natural := 24;
-      kRedDepth : natural := 5;
-      kGreenDepth : natural := 6;
-      kBlueDepth : natural := 5
-   );
+      kPolarity : std_logic := '1');
    Port (
-      rgb_pData : in std_logic_vector(VID_IN_DATA_WIDTH-1 downto 0);
-      rgb_pVDE : in std_logic;
-      rgb_pHSync : in std_logic;
-      rgb_pVSync : in std_logic;
-      
-      PixelClk : in std_logic; --pixel clock
-      
-      vga_pRed : out std_logic_vector(kRedDepth-1 downto 0);
-      vga_pGreen : out std_logic_vector(kGreenDepth-1 downto 0);
-      vga_pBlue : out std_logic_vector(kBlueDepth-1 downto 0);
-      vga_pHSync : out std_logic;
-      vga_pVSync : out std_logic
-   );
-end rgb2vga;
+      aRst : in STD_LOGIC; -- asynchronous reset; active-high, if kPolarity=1
+      OutClk : in STD_LOGIC;
+      oRst : out STD_LOGIC);
+end ResetBridge;
 
-architecture Behavioral of rgb2vga is
-signal int_pData : std_logic_vector(VID_IN_DATA_WIDTH-1 downto 0);
-
+architecture Behavioral of ResetBridge is
+signal aRst_int : std_logic;
+attribute KEEP : string;
+attribute KEEP of aRst_int: signal is "TRUE";
 begin
 
-Blanking: process(PixelClk)
-begin
-   if Rising_Edge(PixelClk) then
-      if (rgb_pVDE = '1') then
-         int_pData <= rgb_pData;
-      else
-         int_pData <= (others => '0');
-      end if;
-      
-      vga_pHSync <= rgb_pHSync;
-      vga_pVSync <= rgb_pVSync;
-   end if;
-end process Blanking;
+aRst_int <= kPolarity xnor aRst; --SyncAsync uses active-high reset
 
-vga_pRed <= int_pData(VID_IN_DATA_WIDTH-1 downto VID_IN_DATA_WIDTH - kRedDepth);
-vga_pBlue <= int_pData(VID_IN_DATA_WIDTH/3*2-1 downto VID_IN_DATA_WIDTH/3*2 - kBlueDepth);
-vga_pGreen <= int_pData(VID_IN_DATA_WIDTH/3-1 downto VID_IN_DATA_WIDTH/3 - kGreenDepth); 
-
+SyncAsyncx: entity work.SyncAsync
+   generic map (
+      kResetTo => kPolarity,
+      kStages => 2) --use double FF synchronizer
+   port map (
+      aReset => aRst_int,
+      aIn => not kPolarity,
+      OutClk => OutClk,
+      oOut => oRst);
 
 end Behavioral;
