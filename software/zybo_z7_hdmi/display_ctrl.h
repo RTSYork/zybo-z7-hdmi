@@ -66,8 +66,8 @@
 /* ------------------------------------------------------------ */
 
 #define BIT_DISPLAY_RED 16
-#define BIT_DISPLAY_BLUE 8
-#define BIT_DISPLAY_GREEN 0
+#define BIT_DISPLAY_GREEN 8
+#define BIT_DISPLAY_BLUE 0
 
 /*
  * This driver currently supports 2 frames.

@@ -55,7 +55,7 @@ int main(void) {
 			green = (x*0xFF) / width;
 			blue = 0xFF - ((x*0xFF) / width);
 			red = (y*0xFF) / height;
-			frame[y*stride + x] = (red << BIT_DISPLAY_RED) | (blue << BIT_DISPLAY_BLUE) | (green << BIT_DISPLAY_GREEN);
+			frame[y*stride + x] = (red << BIT_DISPLAY_RED) | (green << BIT_DISPLAY_GREEN) | (blue << BIT_DISPLAY_BLUE);
 		}
 	}
 
