@@ -46,7 +46,7 @@ int main(void) {
 	u32 stride = dispCtrl.stride / 4;
 	u32 width = dispCtrl.vMode.width;
 	u32 height = dispCtrl.vMode.height;
-	u32 *frame = dispCtrl.framePtr[dispCtrl.curFrame];
+	u32 *frame = (u32 *)dispCtrl.framePtr[dispCtrl.curFrame];
 	u32 red, green, blue;
 
 	// Fill the screen with a nice gradient pattern

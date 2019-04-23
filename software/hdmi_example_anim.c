@@ -57,7 +57,7 @@ int main(void) {
 	while (1) {
 			// Switch the frame we're modifying to be the back buffer (1 to 0, or 0 to 1)
 			buff = !buff;
-			frame = dispCtrl.framePtr[buff];
+			frame = (u32 *)dispCtrl.framePtr[buff];
 
 			// Clear the entire frame to white (inefficient, but it works)
 			memset(frame, 0xFF, MAX_FRAME*4);
