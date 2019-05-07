@@ -14,7 +14,7 @@
 #define FRAME_STRIDE (1440*4)
 
 DisplayCtrl dispCtrl; // Display driver struct
-u32 frameBuf[DISPLAY_NUM_FRAMES][MAX_FRAME]; // Frame buffers for video data
+u32 frameBuf[DISPLAY_NUM_FRAMES][MAX_FRAME] __attribute__((aligned(0x20))); // Frame buffers for video data
 void *pFrames[DISPLAY_NUM_FRAMES]; // Array of pointers to the frame buffers
 
 int main(void) {
