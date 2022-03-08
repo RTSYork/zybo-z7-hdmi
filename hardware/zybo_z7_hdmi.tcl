@@ -14,7 +14,7 @@ create_bd_cell -type hier hdmi
 # Create IP cores
 create_bd_cell -type ip -vlnv digilentinc.com:ip:axi_dynclk:1.0 hdmi/axi_dynclk_0
 create_bd_cell -type ip -vlnv xilinx.com:ip:axi_vdma:6.3 hdmi/axi_vdma_0
-create_bd_cell -type ip -vlnv xilinx.com:ip:v_tc:6.1 hdmi/v_tc_0
+create_bd_cell -type ip -vlnv xilinx.com:ip:v_tc:6.2 hdmi/v_tc_0
 create_bd_cell -type ip -vlnv xilinx.com:ip:v_axi4s_vid_out:4.0 hdmi/v_axi4s_vid_out_0
 create_bd_cell -type ip -vlnv digilentinc.com:ip:rgb2dvi:1.4 hdmi/rgb2dvi_0
 create_bd_cell -type ip -vlnv xilinx.com:ip:axis_subset_converter:1.1 hdmi/axis_subset_converter_0
