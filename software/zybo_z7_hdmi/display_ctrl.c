@@ -45,6 +45,7 @@
 /*                            DisplayInitialize() function              */
 /*      14/03/2017(RussellJ): Added DisplayWaitForSync() function,      */
 /*                            changed framePtr to be void*              */
+/*      15/02/2026(Ian G): Update for 2025 compatibility                */
 /*                                                                      */
 /************************************************************************/
 /*
@@ -68,6 +69,7 @@
 
 #include "xdebug.h"
 #include "xil_io.h"
+#include <xil_types.h>
 
 /* ------------------------------------------------------------ */
 /*				Procedure Definitions							*/
@@ -315,7 +317,7 @@ int DisplayStart(DisplayCtrl *dispPtr)
 **		Initializes the driver struct for use.
 **
 */
-int DisplayInitialize(DisplayCtrl *dispPtr, u16 vdmaId, u16 vtcId, u32 dynClkAddr, void *framePtr[DISPLAY_NUM_FRAMES], u32 stride)
+int DisplayInitialize(DisplayCtrl *dispPtr, UINTPTR vdmaBaseAddr, UINTPTR vtcBaseAddr, u32 dynClkAddr, void *framePtr[DISPLAY_NUM_FRAMES], u32 stride)
 {
 	int Status;
 	int i;
@@ -328,7 +330,7 @@ int DisplayInitialize(DisplayCtrl *dispPtr, u16 vdmaId, u16 vtcId, u32 dynClkAdd
 	/*
 	 * Initialize VDMA driver
 	 */
-	vdmaConfig = XAxiVdma_LookupConfig(vdmaId);
+	vdmaConfig = XAxiVdma_LookupConfig(vdmaBaseAddr);
 	if (!vdmaConfig)
 	{
 		xdbg_printf(XDBG_DEBUG_GENERAL, "No video DMA found for ID %d\r\n", vdmaId);
@@ -382,7 +384,7 @@ int DisplayInitialize(DisplayCtrl *dispPtr, u16 vdmaId, u16 vtcId, u32 dynClkAdd
 	/* Initialize the VTC driver so that it's ready to use look up
 	 * configuration in the config table, then initialize it.
 	 */
-	vtcConfig = XVtc_LookupConfig(vtcId);
+	vtcConfig = XVtc_LookupConfig(vtcBaseAddr);
 	/* Checking Config variable */
 	if (NULL == vtcConfig) {
 		return (XST_FAILURE);
