@@ -102,7 +102,7 @@ typedef struct {
 
 int DisplayStop(DisplayCtrl *dispPtr);
 int DisplayStart(DisplayCtrl *dispPtr);
-int DisplayInitialize(DisplayCtrl *dispPtr, u16 vdmaId, u16 vtcId, u32 dynClkAddr, void *framePtr[DISPLAY_NUM_FRAMES], u32 stride);
+int DisplayInitialize(DisplayCtrl *dispPtr, UINTPTR vdmaBaseAddr, UINTPTR vtcBaseAddr, u32 dynClkAddr, void *framePtr[DISPLAY_NUM_FRAMES], u32 stride);
 int DisplaySetMode(DisplayCtrl *dispPtr, const VideoMode *newMode);
 int DisplayChangeFrame(DisplayCtrl *dispPtr, u32 frameIndex);
 int DisplayWaitForSync(DisplayCtrl *dispPtr);
