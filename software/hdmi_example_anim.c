@@ -1,10 +1,11 @@
 /**
  * Example of using the Digilent display drivers for Zybo Z7 HDMI output, with animation
  * Russell Joyce, 11/03/2019
+ * Ian Gray, 15/02/2026 - Updated for Xilinx 2025.1 tools
  */
 
 #include <stdio.h>
-#include "xil_types.h"
+#include <xil_types.h>
 #include "xil_cache.h"
 #include "xparameters.h"
 #include "zybo_z7_hdmi/display_ctrl.h"
@@ -24,7 +25,7 @@ int main(void) {
 		pFrames[i] = frameBuf[i];
 
 	// Initialise the display controller
-	DisplayInitialize(&dispCtrl, XPAR_AXIVDMA_0_DEVICE_ID, XPAR_VTC_0_DEVICE_ID, XPAR_HDMI_AXI_DYNCLK_0_BASEADDR, pFrames, FRAME_STRIDE);
+	DisplayInitialize(&dispCtrl, XPAR_HDMI_AXI_VDMA_0_BASEADDR, XPAR_XVTC_0_BASEADDR, XPAR_HDMI_AXI_DYNCLK_0_BASEADDR, pFrames, FRAME_STRIDE);
 
 	// Start with the first frame buffer (of two)
 	DisplayChangeFrame(&dispCtrl, 0);
